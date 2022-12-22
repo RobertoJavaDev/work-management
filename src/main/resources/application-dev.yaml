@@ -1,14 +1,23 @@
-server.port=8080
+spring:
+  jpa:
+    hibernate.ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+    show-sql: true
+    defer-datasource-initialization: true
 
-spring.jpa.hibernate.ddl-auto=validate
-spring.datasource.url=jdbc:h2:file:./work-management-db
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+  datasource:
+    url: jdbc:h2:file:./work-management-db
 
-spring.sql.init.mode=always
-spring.jpa.defer-datasource-initialization=true
+  liquibase:
+    change-log: db/dbchangelog-dev.yaml
 
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=false
+  h2:
+    console:
+      enabled: true
+      path: /h2
 
-spring.h2.console.enabled=true
-spring.h2.console.path=/h2
+server:
+  port: 8080
