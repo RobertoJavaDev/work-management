@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.robertojavadev.workmanagementapp.dto.TaskDto;
 import pl.robertojavadev.workmanagementapp.dto.TaskMapper;
+import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
 import pl.robertojavadev.workmanagementapp.model.Task;
 import pl.robertojavadev.workmanagementapp.repository.TaskRepository;
 
