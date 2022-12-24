@@ -9,3 +9,9 @@ create table if not exists tasks
     done        bit,
     deadline datetime null
 )
+
+--changeset RobertoJavaDev:001_2
+
+insert into tasks (id, description, done) values
+    (random_uuid(), 'Learn programming', false),
+    (random_uuid(), 'Write application', false);
