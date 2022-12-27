@@ -52,4 +52,15 @@ public class TaskController {
 
         return new ResponseEntity<>(taskDto, headers, HttpStatus.CREATED);
     }
+
+    @Transactional
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskDto> updateTask(@Valid @PathVariable UUID id, @RequestBody TaskDto taskRequest) {
+
+        TaskDto taskDto = taskService.updateTask(id, taskRequest);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The task has been successfully updated");
+
+        return new ResponseEntity<>(taskDto, headers, HttpStatus.OK);
+    }
 }
