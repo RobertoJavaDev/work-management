@@ -2,7 +2,6 @@ package pl.robertojavadev.workmanagementapp.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,6 +12,7 @@ import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
 import pl.robertojavadev.workmanagementapp.model.Task;
 import pl.robertojavadev.workmanagementapp.repository.TaskRepository;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,6 +20,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +83,7 @@ public class TaskServiceTest {
         Task task = new Task(ID_OF_TASK_3, description3, null);
 
         //when
-        given(taskRepository.findById(Mockito.any())).willReturn(Optional.empty());
+        given(taskRepository.findById(any())).willReturn(Optional.empty());
 
         //then
         assertThatThrownBy(() -> taskService.getTaskById(ID_OF_TASK_1))
@@ -90,5 +91,52 @@ public class TaskServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> taskService.getTaskById(ID_OF_TASK_1))
                 .withMessageContaining("doesn't exist");
+    }
+
+    @Test
+    void shouldCreatedTaskCorrectly() {
+        //given
+        Task task = new Task(ID_OF_TASK_1, description1, null);
+        TaskDto createdTask = new TaskDto(ID_OF_TASK_1, description1, null);
+        TaskDto taskDto = new TaskDto(ID_OF_TASK_1, description1, null);
+
+        //when
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
+        TaskDto returnTask = taskService.createTask(createdTask);
+
+        //then
+        Assertions.assertEquals(task.getId(), returnTask.getId());
+        Assertions.assertEquals(task.getDescription(), returnTask.getDescription());
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenDescriptionIsEmpty() {
+        //given
+        Task task = new Task(ID_OF_TASK_1, "", null);
+        TaskDto createdTask = new TaskDto(ID_OF_TASK_1, "", null);
+        TaskDto taskDto = new TaskDto(ID_OF_TASK_1, "", null);
+
+        //when
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
+
+        //then
+        Assertions.assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenDescriptionHasWhiteSpaces() {
+        //given
+        Task task = new Task(ID_OF_TASK_1, "    ", null);
+        TaskDto createdTask = new TaskDto(ID_OF_TASK_1, "    ", null);
+        TaskDto taskDto = new TaskDto(ID_OF_TASK_1, "    ", null);
+
+        //when
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
+
+        //then
+        Assertions.assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
     }
 }
