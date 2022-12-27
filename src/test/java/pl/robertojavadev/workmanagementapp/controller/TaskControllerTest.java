@@ -87,7 +87,7 @@ class TaskControllerTest {
     void shouldThrowAnExceptionWhenTaskDescriptionIsEmpty() throws Exception {
         //given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "", null);
-        given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1,"",null));
+        given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1, "", null));
 
         //when
         ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
@@ -99,10 +99,10 @@ class TaskControllerTest {
     }
 
     @Test
-    void shouldThrowAnExceptionWhenTaskDescriptionHasWhiteSpaces() throws Exception{
+    void shouldThrowAnExceptionWhenTaskDescriptionHasWhiteSpaces() throws Exception {
         //given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "    ", null);
-        given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1,"    ",null));
+        given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1, "    ", null));
 
         //when
         ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
@@ -114,7 +114,7 @@ class TaskControllerTest {
     }
 
     @Test
-    void shouldReturnStatusOkWhenTaskUpdatedCorrectly() throws Exception{
+    void shouldReturnStatusOkWhenTaskUpdatedCorrectly() throws Exception {
         //given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
         TaskDto updateTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
@@ -122,7 +122,7 @@ class TaskControllerTest {
         when(taskService.updateTask(ID_OF_TASK_1, task)).thenReturn(updateTask);
 
         //when
-        ResultActions result = mockMvc.perform(patch("/api/v1/tasks/" + ID_OF_TASK_1)
+        ResultActions result = mockMvc.perform(put("/api/v1/tasks/" + ID_OF_TASK_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateTask))));
 
@@ -131,16 +131,49 @@ class TaskControllerTest {
     }
 
     @Test
-    void shouldReturnStatusNotFoundWhenTaskUpdatedDoesNotExist() throws Exception{
+    void shouldReturnStatusNotFoundWhenTaskUpdatedDoesNotExist() throws Exception {
         //given
         TaskDto updateTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
 
-        when(taskService.updateTask(any(),any())).thenThrow(ResourceNotFoundException.class);
+        when(taskService.updateTask(any(), any())).thenThrow(ResourceNotFoundException.class);
+
+        //when
+        ResultActions result = mockMvc.perform(put("/api/v1/tasks/" + ID_OF_TASK_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateTask))));
+
+        //then
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnStatusOkWhenToggleTaskCorrectly() throws Exception {
+        //given
+        TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
+        TaskDto toggleTask = new TaskDto(ID_OF_TASK_1, "Learn Java Boot", true, null);
+
+        when(taskService.toggleTask(task.getId())).thenReturn(toggleTask);
 
         //when
         ResultActions result = mockMvc.perform(patch("/api/v1/tasks/" + ID_OF_TASK_1)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateTask))));
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(toggleTask))));
+
+        //then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnStatusNotFoundWhenToggleTaskDoesNotExist() throws Exception {
+        //given
+        TaskDto toggleTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
+
+        when(taskService.toggleTask(any())).thenThrow(ResourceNotFoundException.class);
+
+        //when
+        ResultActions result = mockMvc.perform(patch("/api/v1/tasks/" + ID_OF_TASK_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(toggleTask))));
 
         //then
         result.andExpect(status().isNotFound());

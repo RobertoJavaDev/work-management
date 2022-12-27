@@ -14,11 +14,20 @@ public class TaskDto {
     @NotBlank(message = "Description must be not empty")
     private String description;
 
+    private boolean done;
+
     private Instant deadline;
 
     public TaskDto(final UUID id, final String description, final Instant deadline) {
         this.id = id;
         this.description = description;
+        this.deadline = deadline;
+    }
+
+    public TaskDto(final UUID id, final String description, final boolean done, final Instant deadline) {
+        this.id = id;
+        this.description = description;
+        this.done = done;
         this.deadline = deadline;
     }
 
