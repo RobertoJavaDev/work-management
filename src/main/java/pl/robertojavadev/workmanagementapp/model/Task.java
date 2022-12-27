@@ -32,6 +32,10 @@ public class Task {
 
     private Instant deadline;
 
+    @ManyToOne
+    @JoinColumn(name = "task_group_id")
+    private Section section;
+
     public Task(String description, Instant deadline) {
         this.id = UUID.randomUUID();
         this.description = description;
