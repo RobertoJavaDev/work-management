@@ -168,7 +168,23 @@ public class TaskServiceTest {
         assertThatThrownBy(() -> taskService.updateTask(ID_OF_TASK_1, task))
                 .isInstanceOf(ResourceNotFoundException.class);
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> taskService.getTaskById(ID_OF_TASK_1))
+                .isThrownBy(() -> taskService.updateTask(ID_OF_TASK_1, task))
+                .withMessageContaining("doesn't exist");
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenToggleTaskDoesNotExist() {
+        //given
+        TaskDto task = new TaskDto(ID_OF_TASK_1, description1, null);
+
+        //when
+        given(taskRepository.findById(any())).willReturn(Optional.empty());
+
+        //then
+        assertThatThrownBy(() -> taskService.toggleTask(ID_OF_TASK_1))
+                .isInstanceOf(ResourceNotFoundException.class);
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> taskService.toggleTask(ID_OF_TASK_1))
                 .withMessageContaining("doesn't exist");
     }
 }
