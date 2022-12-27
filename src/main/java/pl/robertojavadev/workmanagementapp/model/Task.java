@@ -31,4 +31,17 @@ public class Task {
     private boolean done;
 
     private Instant deadline;
+
+    public Task(String description, Instant deadline) {
+        this.id = UUID.randomUUID();
+        this.description = description;
+        this.done = false;
+        this.deadline = deadline;
+    }
+    public Task(UUID id, String description, Instant deadline) {
+        this.id = id;
+        this.description = description;
+        this.done = false;
+        this.deadline = deadline;
+    }
 }
