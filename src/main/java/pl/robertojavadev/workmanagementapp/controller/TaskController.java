@@ -44,9 +44,9 @@ public class TaskController {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto requestTask) {
+    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskRequest) {
 
-        TaskDto taskDto = taskService.createTask(requestTask);
+        TaskDto taskDto = taskService.createTask(taskRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("message", "The task has been successfully created");
 

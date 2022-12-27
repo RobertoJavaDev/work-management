@@ -33,4 +33,13 @@ public class TaskService {
             throw new ResourceNotFoundException("Task with that id doesn't exist");
         }
     }
+
+    public TaskDto createTask(TaskDto taskRequest) {
+
+        Task task = new Task();
+        task.setDescription(taskRequest.getDescription());
+        task.setDeadline(taskRequest.getDeadline());
+
+        return taskMapper.mapTaskEntityToTaskDto(taskRepository.save(task));
+    }
 }
