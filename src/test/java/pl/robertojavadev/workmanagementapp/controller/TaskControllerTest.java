@@ -112,4 +112,37 @@ class TaskControllerTest {
         //then
         result.andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturnStatusOkWhenTaskUpdatedCorrectly() throws Exception{
+        //given
+        TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
+        TaskDto updateTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
+
+        when(taskService.updateTask(ID_OF_TASK_1, task)).thenReturn(updateTask);
+
+        //when
+        ResultActions result = mockMvc.perform(patch("/api/v1/tasks/" + ID_OF_TASK_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateTask))));
+
+        //then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnStatusNotFoundWhenTaskUpdatedDoesNotExist() throws Exception{
+        //given
+        TaskDto updateTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
+
+        when(taskService.updateTask(any(),any())).thenThrow(ResourceNotFoundException.class);
+
+        //when
+        ResultActions result = mockMvc.perform(patch("/api/v1/tasks/" + ID_OF_TASK_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateTask))));
+
+        //then
+        result.andExpect(status().isNotFound());
+    }
 }
