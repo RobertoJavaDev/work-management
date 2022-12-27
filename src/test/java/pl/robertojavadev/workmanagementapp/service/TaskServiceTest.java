@@ -1,7 +1,7 @@
 package pl.robertojavadev.workmanagementapp.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,6 +20,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
@@ -74,7 +75,7 @@ public class TaskServiceTest {
         TaskDto actualTask = taskService.getTaskById(ID_OF_TASK_3);
 
         //then
-        Assertions.assertEquals(expectedTask, actualTask);
+        assertEquals(expectedTask, actualTask);
     }
 
     @Test
@@ -106,8 +107,8 @@ public class TaskServiceTest {
         TaskDto returnTask = taskService.createTask(createdTask);
 
         //then
-        Assertions.assertEquals(task.getId(), returnTask.getId());
-        Assertions.assertEquals(task.getDescription(), returnTask.getDescription());
+        assertEquals(task.getId(), returnTask.getId());
+        assertEquals(task.getDescription(), returnTask.getDescription());
     }
 
     @Test
@@ -122,7 +123,7 @@ public class TaskServiceTest {
         when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
 
         //then
-        Assertions.assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
+        assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
     }
 
     @Test
@@ -137,6 +138,37 @@ public class TaskServiceTest {
         when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
 
         //then
-        Assertions.assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
+        assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
+    }
+
+    @Test
+    void shouldReturnUpdatedTaskCorrectly() {
+        //given
+        Task task = new Task(ID_OF_TASK_1, description1, null);
+        TaskDto updatedTask = new TaskDto(ID_OF_TASK_1, "New description", null);
+
+        //when
+        when(taskRepository.findById(ID_OF_TASK_1)).thenReturn(Optional.of(task));
+        when(taskMapper.mapTaskEntityToTaskDto(Mockito.any(Task.class))).thenReturn(updatedTask);
+        TaskDto taskDto = taskService.updateTask(ID_OF_TASK_1, updatedTask);
+
+        //then
+        assertEquals(task.getDescription(), updatedTask.getDescription());
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenUpdatedTaskDoesNotExist() {
+        //given
+        TaskDto task = new TaskDto(ID_OF_TASK_1, description1, null);
+
+        //when
+        given(taskRepository.findById(any())).willReturn(Optional.empty());
+
+        //then
+        assertThatThrownBy(() -> taskService.updateTask(ID_OF_TASK_1, task))
+                .isInstanceOf(ResourceNotFoundException.class);
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> taskService.getTaskById(ID_OF_TASK_1))
+                .withMessageContaining("doesn't exist");
     }
 }
