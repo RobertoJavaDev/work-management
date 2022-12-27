@@ -45,4 +45,17 @@ public class TaskService {
 
         return taskMapper.mapTaskEntityToTaskDto(taskRepository.save(task));
     }
+
+    public TaskDto updateTask(@Valid UUID id, TaskDto taskRequest) {
+
+        Task task = taskRepository.findById(id).orElseThrow(() -> {
+
+            throw new ResourceNotFoundException("Task with that id doesn't exist");
+        });
+
+        task.setDescription(taskRequest.getDescription());
+        task.setDeadline(taskRequest.getDeadline());
+
+        return taskMapper.mapTaskEntityToTaskDto(taskRepository.save(task));
+    }
 }
