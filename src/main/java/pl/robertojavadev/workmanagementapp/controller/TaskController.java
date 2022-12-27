@@ -4,10 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.robertojavadev.workmanagementapp.dto.TaskDto;
 import pl.robertojavadev.workmanagementapp.model.Task;
 import pl.robertojavadev.workmanagementapp.service.TaskService;
@@ -29,18 +26,30 @@ public class TaskController {
 
     @Transactional
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks(){
+    public ResponseEntity<List<Task>> getAllTasks() {
 
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
     @Transactional
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDto> getTaskById(@NotNull @PathVariable UUID id){
+    public ResponseEntity<TaskDto> getTaskById(@NotNull @PathVariable UUID id) {
 
         TaskDto taskDto = taskService.getTaskById(id);
         HttpHeaders headers = new HttpHeaders();
         headers.add("message", "The task has been successfully retrieved");
+
         return new ResponseEntity<>(taskDto, headers, HttpStatus.OK);
+    }
+
+    @Transactional
+    @PostMapping
+    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskRequest) {
+
+        TaskDto taskDto = taskService.createTask(taskRequest);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The task has been successfully created");
+
+        return new ResponseEntity<>(taskDto, headers, HttpStatus.CREATED);
     }
 }

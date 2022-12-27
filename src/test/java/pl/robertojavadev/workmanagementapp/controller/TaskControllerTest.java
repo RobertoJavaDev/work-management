@@ -18,8 +18,9 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -65,5 +66,50 @@ class TaskControllerTest {
 
         //then
         result.andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnStatusCreatedWhenTaskCreatedCorrectly() throws Exception {
+        //given
+        TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
+        when(taskService.createTask(task)).thenReturn(task);
+
+        //when
+        ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
+
+        //then
+        result.andExpect(status().isCreated());
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenTaskDescriptionIsEmpty() throws Exception {
+        //given
+        TaskDto task = new TaskDto(ID_OF_TASK_1, "", null);
+        given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1,"",null));
+
+        //when
+        ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
+
+        //then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenTaskDescriptionHasWhiteSpaces() throws Exception{
+        //given
+        TaskDto task = new TaskDto(ID_OF_TASK_1, "    ", null);
+        given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1,"    ",null));
+
+        //when
+        ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
+
+        //then
+        result.andExpect(status().isBadRequest());
     }
 }
