@@ -1,10 +1,12 @@
 package pl.robertojavadev.workmanagementapp.dto;
 
 import lombok.Data;
+import pl.robertojavadev.workmanagementapp.model.Section;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
