@@ -58,4 +58,15 @@ public class TaskService {
 
         return taskMapper.mapTaskEntityToTaskDto(taskRepository.save(task));
     }
+
+    public TaskDto toggleTask(@Valid UUID id) {
+
+        Task task = taskRepository.findById(id).orElseThrow(() -> {
+            throw new ResourceNotFoundException("Task with that id doesn't exist");
+        });
+
+        task.setDone(!task.isDone());
+
+        return taskMapper.mapTaskEntityToTaskDto(taskRepository.save(task));
+    }
 }
