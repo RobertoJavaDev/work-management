@@ -54,7 +54,7 @@ public class TaskController {
     }
 
     @Transactional
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<TaskDto> updateTask(@Valid @PathVariable UUID id, @RequestBody TaskDto taskRequest) {
 
         TaskDto taskDto = taskService.updateTask(id, taskRequest);
@@ -62,5 +62,16 @@ public class TaskController {
         headers.add("message", "The task has been successfully updated");
 
         return new ResponseEntity<>(taskDto, headers, HttpStatus.OK);
+    }
+
+    @Transactional
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskDto> toggleTask(@Valid @PathVariable UUID id){
+
+        TaskDto taskDto = taskService.toggleTask(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The task has been successfully toggled");
+
+        return new ResponseEntity<>(taskDto,headers,HttpStatus.OK);
     }
 }
