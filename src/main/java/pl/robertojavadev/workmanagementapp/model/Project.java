@@ -32,4 +32,8 @@ public class Project {
 
     @OneToMany(mappedBy = "project")
     private Set<Section> sections;
+
+    public Project(String description, Instant creationDate) {
+
+    }
 }
