@@ -26,4 +26,13 @@ public class ProjectDto {
 
     @Valid
     private List<Section> sections = new ArrayList<>();
+
+    public ProjectDto(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public ProjectDto() {
+
+    }
 }
