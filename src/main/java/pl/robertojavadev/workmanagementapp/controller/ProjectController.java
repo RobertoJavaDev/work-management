@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.robertojavadev.workmanagementapp.model.Project;
+import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
 import java.util.List;
 
