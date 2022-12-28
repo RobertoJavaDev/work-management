@@ -46,3 +46,8 @@ alter table tasks
     add column task_section_id uuid null;
 alter table tasks
     add foreign key (task_section_id) references sections (id);
+
+--changeset RobertoJavaDev:001_7
+
+alter table projects
+    add column name varchar(100) not null;
