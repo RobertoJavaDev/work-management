@@ -26,7 +26,12 @@ public class ProjectController {
 
         List<Project> projects = projectService.getAllProjects();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("message", "The projects has been successfully retrieved");
+
+        if (projects.isEmpty()) {
+            headers.add("message", "There are no available projects to view");
+        } else {
+            headers.add("message", "The projects has been successfully retrieved");
+        }
 
         return new ResponseEntity<>(projects, headers, HttpStatus.OK);
     }
