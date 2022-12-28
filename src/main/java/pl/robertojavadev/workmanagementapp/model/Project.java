@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Set;
@@ -24,8 +25,12 @@ public class Project {
     @GeneratedValue
     private UUID id;
 
-    @NotBlank(message = "Project's description must not be empty")
+    @NotBlank(message = "Project's name must not be empty")
     @Size(max = 30)
+    private String name;
+
+    @NotNull
+    @Size(max = 255)
     private String description;
 
     private Instant creationDate;
@@ -33,7 +38,9 @@ public class Project {
     @OneToMany(mappedBy = "project")
     private Set<Section> sections;
 
-    public Project(String description, Instant creationDate) {
-
+    public Project(String name, String description, Instant creationDate) {
+        this.name = name;
+        this.description = description;
+        this.creationDate = creationDate;
     }
 }

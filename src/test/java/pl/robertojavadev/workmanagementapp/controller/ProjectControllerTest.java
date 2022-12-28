@@ -55,9 +55,9 @@ public class ProjectControllerTest {
     void shouldReturnStatusOkAndReturnListOfProjectsCorrectly() throws Exception {
         //given
         List<Project> projects = new ArrayList<>(List.of(
-                new Project("Project Java", Instant.now()),
-                new Project("Project sport", Instant.now()),
-                new Project("Project english", Instant.now())
+                new Project("Project Java", "Learn programming", Instant.now()),
+                new Project("Project sport", "", Instant.now()),
+                new Project("Project english", "Learn english vocabulary", Instant.now())
         ));
         given(projectService.getAllProjects()).willReturn(projects);
 
