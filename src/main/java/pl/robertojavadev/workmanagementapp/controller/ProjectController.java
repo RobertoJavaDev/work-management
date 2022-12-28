@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
@@ -38,9 +39,9 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@Valid @RequestBody Project projectRequest){
+    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectRequest){
 
-        Project project = projectService.createProject(projectRequest);
+        ProjectDto project = projectService.createProject(projectRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("message", "The project has been successfully created");
 
