@@ -3,12 +3,13 @@ package pl.robertojavadev.workmanagementapp.controller;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -21,6 +22,7 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
+    @Transactional
     @GetMapping
     public ResponseEntity<List<Project>> getAllProjects() {
 
@@ -34,5 +36,15 @@ public class ProjectController {
         }
 
         return new ResponseEntity<>(projects, headers, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectRequest){
+
+        ProjectDto project = projectService.createProject(projectRequest);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The project has been successfully created");
+
+        return new ResponseEntity<>(project, headers, HttpStatus.CREATED);
     }
 }
