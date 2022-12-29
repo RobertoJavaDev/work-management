@@ -17,8 +17,8 @@ public class ProjectViewController {
 
     @GetMapping
     String showProjects(Model model) {
-        model.addAttribute("project", new ProjectDto());
+        model.addAttribute("project", projectService.getAllProjects());
 
-        return "projects";
+        return "project/index";
     }
 }
