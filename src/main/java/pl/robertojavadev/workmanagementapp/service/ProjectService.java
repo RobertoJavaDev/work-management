@@ -8,6 +8,7 @@ import pl.robertojavadev.workmanagementapp.dto.ProjectMapper;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.repository.ProjectRepository;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Service
@@ -23,12 +24,12 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public ProjectDto createProject(ProjectDto projectRequest) {
+    public ProjectDto createProject(@Valid ProjectDto projectRequest) {
 
         Project project = new Project();
         project.setName(projectRequest.getName());
         project.setDescription(projectRequest.getDescription());
 
-        return projectMapper.mapProjectEntityToProjectDto(project);
+        return projectMapper.mapProjectEntityToProjectDto(projectRepository.save(project));
     }
 }
