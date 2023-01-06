@@ -51,3 +51,9 @@ alter table tasks
 
 alter table projects
     add column name varchar(100) not null;
+
+--changeset RobertoJavaDev:001_8
+
+insert into projects (id, name, description, creation_date) values
+    (random_uuid(), 'Example of project', 'This is description of first project. Description can be empty, you dont have to write anything.', current_date),
+    (random_uuid(), 'Learn Java language', 'Project- learn Java. Every steps describe things you should do every day to be better programmer.', current_date);
