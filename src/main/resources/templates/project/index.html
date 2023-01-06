@@ -123,22 +123,22 @@
     <section class="py-2 text-center container">
         <div class="row py-lg-2">
             <div class="col-lg-4 col-md-8 mx-auto">
-                <form>
+                <form th:object="${project}" method="post" action="/projects">
                     <legend class="fw-light">Would you like to add a new project?</legend>
                     <div class="mb-1">
                         <label for="NameTextInput" class="form-label">Please type project name:</label>
-                        <input type="text" id="NameTextInput" class="form-control">
+                        <input type="text" id="NameTextInput" class="form-control" th:field="*{name}" >
                     </div>
                     <div class="mb-3">
                         <span id="nameHelpInline" class="form-text">Must be max 30 characters long.</span>
                     </div>
                     <div class="mb-3">
                         <label for="DescriptionTextInput" class="form-label">Please type project description:</label>
-                        <input type="text" id="DescriptionTextInput" class="form-control">
+                        <input type="text" id="DescriptionTextInput" class="form-control" th:field="*{description}">
                         </select>
                     </div>
                     <div class="mb-1">
-                        <button href="#" class="btn btn-primary my-2">Add new project</button>
+                        <input type="submit" class="btn btn-primary my-2" value="Add new project"></input>
                         <button href="#" class="btn btn-secondary my-2">Clear</button>
                     </div>
                 </form>
@@ -162,30 +162,8 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
                                 </div>
-                                <small class="text-muted">9 mins</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card shadow-sm">
-                        <svg class="bd-placeholder-img card-img-top" width="100%" height="225"
-                             xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail"
-                             preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title>
-                            <rect width="100%" height="100%" fill="#55595c"/>
-                            <text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text>
-                        </svg>
-                        <div class="card-body">
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                </div>
-                                <small class="text-muted">9 mins</small>
+                                <small class="text-muted" th:text="${#dates.format(project.creationDate, 'dd-MMM-yyyy')}"></small>
                             </div>
                         </div>
                     </div>
@@ -201,9 +179,7 @@
         <p class="float-end mb-1">
             <a href="#">Back to top</a>
         </p>
-        <p class="mb-1">Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>
-        <p class="mb-0">New to Bootstrap? <a href="/">Visit the homepage</a> or read our <a
-                href="/docs/5.3/getting-started/introduction/">getting started guide</a>.</p>
+        <p class="mb-1">Work management template built by <a href="https://getbootstrap.com/">Bootstrap</a> by <a href="https://twitter.com/mdo">@mdo</a></p>
     </div>
 </footer>
 
