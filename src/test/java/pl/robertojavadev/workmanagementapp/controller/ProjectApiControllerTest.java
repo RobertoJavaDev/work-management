@@ -19,11 +19,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -78,24 +78,24 @@ public class ProjectApiControllerTest {
     }
 
     @Test
-    void shouldReturnStatusCreatedWhenProjectCreatedCorrectly() throws Exception{
+    void shouldReturnStatusCreatedWhenProjectCreatedCorrectly() throws Exception {
         //given
-        ProjectDto project = new ProjectDto("New Project","New project should be make");
+        ProjectDto project = new ProjectDto("New Project", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
         //when
         ResultActions result = mockMvc.perform(post("/api/v1/projects/")
                 .contentType(MediaType.APPLICATION_JSON)
-                        .content(Objects.requireNonNull(objectMapper.writeValueAsString(project))));
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(project))));
 
         //then
         result.andExpect(status().isCreated());
     }
 
     @Test
-    void shouldReturnThrownAnExceptionWhenProjectNameIsEmpty() throws Exception{
+    void shouldReturnThrownAnExceptionWhenProjectNameIsEmpty() throws Exception {
         //given
-        ProjectDto project = new ProjectDto("","New project should be make");
+        ProjectDto project = new ProjectDto("", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
         //when
@@ -108,9 +108,9 @@ public class ProjectApiControllerTest {
     }
 
     @Test
-    void shouldReturnThrownAnExceptionWhenProjectNameHasOnlyWhiteSpaces() throws Exception{
+    void shouldReturnThrownAnExceptionWhenProjectNameHasOnlyWhiteSpaces() throws Exception {
         //given
-        ProjectDto project = new ProjectDto("     ","New project should be make");
+        ProjectDto project = new ProjectDto("     ", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
         //when
@@ -123,9 +123,9 @@ public class ProjectApiControllerTest {
     }
 
     @Test
-    void shouldReturnThrownAnExceptionWhenProjectNameHasIllegalSize() throws Exception{
+    void shouldReturnThrownAnExceptionWhenProjectNameHasIllegalSize() throws Exception {
         //given
-        ProjectDto project = new ProjectDto("NewProjectNameWithName's62signsNewProjectNameWithName's62signs","New project should be make");
+        ProjectDto project = new ProjectDto("NewProjectNameWithName's62signsNewProjectNameWithName's62signs", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
         //when
@@ -135,5 +135,19 @@ public class ProjectApiControllerTest {
 
         //then
         result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnStatusOkWhenProjectDeletedCorrectly() throws Exception {
+        //given
+        ProjectDto projectDto = new ProjectDto("Test project", "Description");
+
+        //when
+        ResultActions result = mockMvc.perform(delete("/api/v1/projects/{id}", UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(projectDto))));
+
+        //then
+        result.andExpect(status().isOk());
     }
 }
