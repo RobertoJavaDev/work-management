@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
 import pl.robertojavadev.workmanagementapp.dto.ProjectMapper;
+import pl.robertojavadev.workmanagementapp.exception.ResourceNotDeletedException;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.repository.ProjectRepository;
 
@@ -38,5 +39,14 @@ public class ProjectService {
     public Optional<Project> getProjectById(UUID id) {
 
         return projectRepository.findById(id);
+    }
+
+    public void deleteProject(final UUID id) throws ResourceNotDeletedException {
+
+        if (!projectRepository.existsById(id)) {
+            throw new ResourceNotDeletedException("Project does not exist, please change your request");
+        }
+
+        projectRepository.deleteById(id);
     }
 }

@@ -6,11 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
+import pl.robertojavadev.workmanagementapp.exception.ResourceNotDeletedException;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/projects")
@@ -39,12 +41,22 @@ public class ProjectApiController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectRequest){
+    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectRequest) {
 
         ProjectDto project = projectService.createProject(projectRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("message", "The project has been successfully created");
 
         return new ResponseEntity<>(project, headers, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ProjectDto> deleteProject(@Valid @PathVariable UUID id) throws ResourceNotDeletedException {
+
+        projectService.deleteProject(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The project has been successfully deleted");
+
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 }
