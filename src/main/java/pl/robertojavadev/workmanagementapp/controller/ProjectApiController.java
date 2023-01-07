@@ -11,6 +11,7 @@ import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/projects")
@@ -46,5 +47,15 @@ public class ProjectApiController {
         headers.add("message", "The project has been successfully created");
 
         return new ResponseEntity<>(project, headers, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ProjectDto> deleteProject(@Valid @PathVariable UUID id){
+
+        projectService.deleteProject(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The project has been successfully deleted");
+
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 }
