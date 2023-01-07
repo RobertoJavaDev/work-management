@@ -10,6 +10,8 @@ import pl.robertojavadev.workmanagementapp.repository.ProjectRepository;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -31,5 +33,10 @@ public class ProjectService {
         project.setDescription(projectRequest.getDescription());
 
         return projectMapper.mapProjectEntityToProjectDto(projectRepository.save(project));
+    }
+
+    public Optional<Project> getProjectById(UUID id) {
+
+        return projectRepository.findById(id);
     }
 }

@@ -33,7 +33,8 @@ public class Project {
     @Size(max = 255)
     private String description;
 
-    private Instant creationDate;
+    @NotNull
+    private Instant creationDate = Instant.now();
 
     @OneToMany(mappedBy = "project")
     private Set<Section> sections;
