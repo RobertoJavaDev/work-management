@@ -50,6 +50,16 @@ public class ProjectApiController {
         return new ResponseEntity<>(project, headers, HttpStatus.CREATED);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProjectDto> updateProject(@Valid @PathVariable UUID id, @RequestBody ProjectDto projectRequest) {
+
+        ProjectDto project = projectService.updateProject(id, projectRequest);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The project has been successfully updated");
+
+        return new ResponseEntity<>(project, headers, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ProjectDto> deleteProject(@Valid @PathVariable UUID id) throws ResourceNotDeletedException {
 
