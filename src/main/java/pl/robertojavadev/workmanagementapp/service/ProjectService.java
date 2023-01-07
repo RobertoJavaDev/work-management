@@ -39,4 +39,13 @@ public class ProjectService {
 
         return projectRepository.findById(id);
     }
+
+    public void deleteProject(final UUID id) {
+
+        if (!projectRepository.existsById(id)) {
+            throw new ResourceNotDeletedException("Project does not exist, please change your request");
+        }
+
+        projectRepository.deleteById(id);
+    }
 }
