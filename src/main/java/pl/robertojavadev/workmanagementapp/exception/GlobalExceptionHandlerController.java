@@ -31,7 +31,7 @@ public class GlobalExceptionHandlerController {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleConstraintViolationException(ConstraintViolationException e) {
         log.error(String.format("ResourceNotUpdatedException: %s", e.getMessage()));
         return e.getMessage();
