@@ -12,6 +12,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
+import pl.robertojavadev.workmanagementapp.exception.ResourceConstraintViolationException;
+import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
@@ -23,12 +25,21 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ProjectApiControllerTest {
+
+    public static final String DESCRIPTION_IS_TOO_LONG = "Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters." +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters";
 
     @MockBean
     private ProjectService projectService;
@@ -149,5 +160,73 @@ public class ProjectApiControllerTest {
 
         //then
         result.andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnStatusOkWhenProjectUpdatedCorrectly() throws Exception {
+        //given
+        ProjectDto oldProject = new ProjectDto("Old name", "Old description");
+        ProjectDto changeProject = new ProjectDto("New name", "New description");
+        UUID id = UUID.randomUUID();
+        given(projectService.updateProject(id, oldProject)).willReturn(changeProject);
+
+        //when
+        ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(changeProject))));
+
+        //then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnStatusNotFoundWhenProjectDoesNotExist() throws Exception {
+        //given
+        ProjectDto updateProject = new ProjectDto("Old name", "Old description");
+        UUID id = UUID.randomUUID();
+        when(projectService.updateProject(id, updateProject)).thenThrow(ResourceNotFoundException.class);
+
+        //when
+        ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateProject))));
+
+        //then
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnStatusBadRequestWhenUpdatedProjectHasEmptyName() throws Exception {
+        //given
+        ProjectDto oldProject = new ProjectDto("Old name", "Old description");
+        ProjectDto updateProject = new ProjectDto("", "Old description");
+        UUID id = UUID.randomUUID();
+        given(projectService.updateProject(id, oldProject)).willReturn(updateProject);
+
+        //when
+        ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateProject))));
+
+        //then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnStatusBadRequestWhenUpdatedProjectDescriptionIsTooLong() throws Exception{
+        //given
+        ProjectDto oldProject = new ProjectDto("Name", "Old description");
+        ProjectDto updateProject = new ProjectDto("Name", DESCRIPTION_IS_TOO_LONG);
+        UUID id = UUID.randomUUID();
+        given(projectService.updateProject(id, oldProject))
+                .willReturn(updateProject);
+
+        //when
+        ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateProject))));
+
+        //then
+        result.andExpect(status().isBadRequest());
     }
 }
