@@ -10,7 +10,9 @@ import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.repository.ProjectRepository;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,7 +44,8 @@ public class ProjectService {
         return projectRepository.findById(id);
     }
 
-    public ProjectDto updateProject(@Valid UUID id, ProjectDto projectRequest) {
+    @Transactional
+    public ProjectDto updateProject(@NotNull UUID id, @NotNull @Valid ProjectDto projectRequest) {
 
         Project project = projectRepository.findById(id).orElseThrow(() -> {
             throw new ResourceNotFoundException("Project does not exist, please change your request");
@@ -51,7 +54,7 @@ public class ProjectService {
         project.setName(projectRequest.getName());
         project.setDescription(projectRequest.getDescription());
 
-        return projectMapper.mapProjectEntityToProjectDto(projectRepository.save(project));
+        return projectMapper.mapProjectEntityToProjectDto(project);
     }
 
     public void deleteProject(final UUID id) throws ResourceNotDeletedException {

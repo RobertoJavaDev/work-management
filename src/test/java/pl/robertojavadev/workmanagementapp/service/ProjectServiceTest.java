@@ -1,5 +1,6 @@
 package pl.robertojavadev.workmanagementapp.service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
 import pl.robertojavadev.workmanagementapp.dto.ProjectMapper;
 import pl.robertojavadev.workmanagementapp.exception.ResourceNotDeletedException;
+import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.repository.ProjectRepository;
 
@@ -34,9 +36,22 @@ import static org.mockito.Mockito.when;
 @Transactional
 public class ProjectServiceTest {
 
-    private static final String projectName1 = "Project Java";
-    private static final String projectName2 = "Project sport";
-    private static final String projectName3 = "Project english";
+    public static final UUID ID_1 = UUID.fromString("0175650a-a076-11ed-a8fc-0242ac120002");
+    private static final String PROJECT_NAME_1 = "Project Java";
+    private static final String PROJECT_NAME_2 = "Project sport";
+    private static final String PROJECT_NAME_3 = "Project english";
+    private static final String EMPTY_PROJECT_NAME = "";
+    private static final String WHITE_SPACES_PROJECT_NAME = "       ";
+    public static final String DESCRIPTION_1 = "Learn programming";
+    public static final String DESCRIPTION_2 = "Learn english vocabulary";
+    public static final String EMPTY_DESCRIPTION = "";
+    public static final String DESCRIPTION_IS_TOO_LONG = "Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters." +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters" +
+            " Name of description is too long - more than 255 letters";
 
     @Autowired
     private ProjectService projectService;
@@ -51,9 +66,9 @@ public class ProjectServiceTest {
     void shouldReturnAllProjects() {
         //given
         List<Project> projects = new ArrayList<>(List.of(
-                new Project(projectName1, "Learn programming", Instant.now()),
-                new Project(projectName2, "", Instant.now()),
-                new Project(projectName3, "Learn english vocabulary", Instant.now())
+                new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now()),
+                new Project(PROJECT_NAME_2, EMPTY_DESCRIPTION, Instant.now()),
+                new Project(PROJECT_NAME_3, DESCRIPTION_2, Instant.now())
         ));
 
         //when
@@ -67,9 +82,9 @@ public class ProjectServiceTest {
     @Test
     void shouldCreatedProjectCorrectly() {
         //given
-        Project project = new Project(projectName1, "Learn every day", Instant.now());
-        ProjectDto createdProject = new ProjectDto(projectName1, "Learn every day");
-        ProjectDto projectDto = new ProjectDto(projectName1, "Learn every day");
+        Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
+        ProjectDto createdProject = new ProjectDto(PROJECT_NAME_1, DESCRIPTION_1);
+        ProjectDto projectDto = new ProjectDto(PROJECT_NAME_1, DESCRIPTION_1);
 
         //when
         when(projectRepository.save(any(Project.class))).thenReturn(project);
@@ -84,9 +99,9 @@ public class ProjectServiceTest {
     @Test
     void shouldThrowAnExceptionWhenNameIsEmpty() {
         //given
-        Project project = new Project("", "Learn every day", Instant.now());
-        ProjectDto createdProject = new ProjectDto("", "Learn every day");
-        ProjectDto projectDto = new ProjectDto("", "Learn every day");
+        Project project = new Project(EMPTY_PROJECT_NAME, DESCRIPTION_1, Instant.now());
+        ProjectDto createdProject = new ProjectDto(EMPTY_PROJECT_NAME, DESCRIPTION_1);
+        ProjectDto projectDto = new ProjectDto(EMPTY_PROJECT_NAME, DESCRIPTION_1);
 
         //when
         when(projectRepository.save(any(Project.class))).thenReturn(project);
@@ -97,11 +112,11 @@ public class ProjectServiceTest {
     }
 
     @Test
-    void shouldThrowAnExceptionWhenDescriptionHasWhiteSpaces() {
+    void shouldThrowAnExceptionWhenNameHasWhiteSpaces() {
         //given
-        Project project = new Project("    ", "Learn every day", Instant.now());
-        ProjectDto createdProject = new ProjectDto("    ", "Learn every day");
-        ProjectDto projectDto = new ProjectDto("    ", "Learn every day");
+        Project project = new Project(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_1, Instant.now());
+        ProjectDto createdProject = new ProjectDto(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_1);
+        ProjectDto projectDto = new ProjectDto(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_1);
 
         //when
         when(projectRepository.save(any(Project.class))).thenReturn(project);
@@ -114,13 +129,12 @@ public class ProjectServiceTest {
     @Test
     void shouldDeletedProjectCorrectly() throws ResourceNotDeletedException {
         //given
-        Project project = new Project(projectName1, "Learn programming", Instant.now());
-        UUID id = UUID.randomUUID();
-        project.setId(id);
+        Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
+        project.setId(ID_1);
 
         //when
-        when(projectRepository.existsById(id)).thenReturn(true);
-        projectService.deleteProject(id);
+        when(projectRepository.existsById(ID_1)).thenReturn(true);
+        projectService.deleteProject(ID_1);
 
         //then
         verify(projectRepository).deleteById(project.getId());
@@ -129,9 +143,8 @@ public class ProjectServiceTest {
     @Test
     void shouldThrowExceptionWhenProjectWithIdDoesNotExist() {
         //given
-        Project project = new Project(projectName1, "Learn programming", Instant.now());
-        UUID id = UUID.randomUUID();
-        project.setId(id);
+        Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
+        project.setId(ID_1);
 
         //when
         given(projectRepository.findById(Mockito.any())).willReturn(Optional.empty());
