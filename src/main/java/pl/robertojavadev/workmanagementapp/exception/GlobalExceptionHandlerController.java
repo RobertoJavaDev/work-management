@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandlerController {
@@ -25,6 +27,13 @@ public class GlobalExceptionHandlerController {
         e.getBindingResult().getFieldErrors().forEach(m -> {
             log.error(String.format("%s %s", m.getField(), m.getDefaultMessage()));
         });
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleConstraintViolationException(ConstraintViolationException e) {
+        log.error(String.format("ResourceNotUpdatedException: %s", e.getMessage()));
         return e.getMessage();
     }
 }
