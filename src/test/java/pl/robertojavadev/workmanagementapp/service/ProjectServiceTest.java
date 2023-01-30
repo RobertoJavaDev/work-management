@@ -156,4 +156,75 @@ public class ProjectServiceTest {
                 .isThrownBy(() -> projectService.deleteProject(UUID.randomUUID()))
                 .withMessageContaining("does not exist");
     }
+
+    @Test
+    void shouldUpdatedProjectCorrectly() {
+        //given
+        ProjectDto updatedProjectDto = new ProjectDto(PROJECT_NAME_2, DESCRIPTION_2);
+        Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
+        project.setId(ID_1);
+        ProjectDto newProjectDto = new ProjectDto(PROJECT_NAME_2, DESCRIPTION_2);
+        newProjectDto.setId(ID_1);
+
+        //when
+        when(projectRepository.findById(ID_1))
+                .thenReturn(Optional.of(project));
+        when(projectMapper.mapProjectEntityToProjectDto(project))
+                .thenReturn(newProjectDto);
+        ProjectDto projectDto = projectService.updateProject(ID_1, updatedProjectDto);
+
+        //then
+        Assertions.assertThat(projectDto.getName()).isEqualTo(updatedProjectDto.getName());
+        Assertions.assertThat(projectDto.getDescription()).isEqualTo(updatedProjectDto.getDescription());
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenUpdatedProjectWithIdDoesNotExist() {
+        //given
+        ProjectDto updatedProjectDto = new ProjectDto(PROJECT_NAME_2, DESCRIPTION_2);
+        updatedProjectDto.setId(ID_1);
+
+        //when
+        given(projectRepository.findById(Mockito.any())).willReturn(Optional.empty());
+
+        //then
+        assertThatThrownBy(() -> projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
+                .isInstanceOf(ResourceNotFoundException.class);
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
+                .withMessageContaining("does not exist");
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenUpdatedNameIsEmpty() {
+        //given
+        ProjectDto updatedProjectDto = new ProjectDto(EMPTY_PROJECT_NAME, DESCRIPTION_2);
+
+        //when
+
+        //then
+        assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenUpdatedNameHasWhiteSpaces() {
+        //given
+        ProjectDto updatedProjectDto = new ProjectDto(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_2);
+
+        //when
+
+        //then
+        assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
+    }
+
+    @Test
+    void shouldThrowAnExceptionWhenUpdatedProjectDescriptionIsTooLong() {
+        //given
+        ProjectDto updatedProjectDto = new ProjectDto(PROJECT_NAME_1, DESCRIPTION_IS_TOO_LONG);
+
+        //when
+
+        //then
+        assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
+    }
 }
