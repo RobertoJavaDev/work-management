@@ -4,6 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
 import pl.robertojavadev.workmanagementapp.exception.ResourceNotDeletedException;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/projects")
+@Validated
 public class ProjectApiController {
 
     private final ProjectService projectService;
@@ -48,6 +50,16 @@ public class ProjectApiController {
         headers.add("message", "The project has been successfully created");
 
         return new ResponseEntity<>(project, headers, HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProjectDto> updateProject(@PathVariable UUID id,@Valid @RequestBody ProjectDto projectRequest) {
+
+        ProjectDto project = projectService.updateProject(id, projectRequest);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The project has been successfully updated");
+
+        return new ResponseEntity<>(project, headers, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

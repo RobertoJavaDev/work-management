@@ -6,10 +6,13 @@ import org.springframework.validation.annotation.Validated;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
 import pl.robertojavadev.workmanagementapp.dto.ProjectMapper;
 import pl.robertojavadev.workmanagementapp.exception.ResourceNotDeletedException;
+import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.repository.ProjectRepository;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +42,19 @@ public class ProjectService {
     public Optional<Project> getProjectById(UUID id) {
 
         return projectRepository.findById(id);
+    }
+
+    @Transactional
+    public ProjectDto updateProject(@NotNull UUID id, @NotNull @Valid ProjectDto projectRequest) {
+
+        Project project = projectRepository.findById(id).orElseThrow(() -> {
+            throw new ResourceNotFoundException("Project does not exist, please change your request");
+        });
+
+        project.setName(projectRequest.getName());
+        project.setDescription(projectRequest.getDescription());
+
+        return projectMapper.mapProjectEntityToProjectDto(project);
     }
 
     public void deleteProject(final UUID id) throws ResourceNotDeletedException {
