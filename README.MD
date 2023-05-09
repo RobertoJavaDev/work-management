@@ -43,7 +43,7 @@ The project was written in Java using the Spring Boot 2 framework and Maven tool
 - [Mockito](https://site.mockito.org/)
 
 ## 👉Screenshots
-![Test main-site](./images/main-site.png)
+![Test main-site](./images/Main-site.png)
 
 ## Prerequisites
 The following tools are required to start the application:

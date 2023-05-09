@@ -44,7 +44,7 @@ Projekt został napisany w języku Java z wykorzystaniem frameworka Spring Boot 
 - [Mockito](https://site.mockito.org/)
 
 ## 👉 Zrzuty ekranu
-![Test main-site](./images/main-site.png)
+![Test main-site](./images/Main-site.png)
 
 ## 🧰 Wymagane aplikacje/narzędzia
 Do uruchomienia aplikacji wymagana jest instalacja następujących narzędzi:
