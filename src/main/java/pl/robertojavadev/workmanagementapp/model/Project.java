@@ -30,7 +30,7 @@ public class Project {
     private String name;
 
     @NotNull
-    @Size(max = 255)
+    @Size(max = 255, message = "Description's size must be between 0 and 255")
     private String description;
 
     @NotNull

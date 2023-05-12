@@ -204,6 +204,9 @@ public class ProjectServiceTest {
 
         //then
         assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(()->projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
+                .withMessageContaining("Project's name must not be empty");
     }
 
     @Test
@@ -215,6 +218,9 @@ public class ProjectServiceTest {
 
         //then
         assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(()->projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
+                .withMessageContaining("Project's name must not be empty");
     }
 
     @Test
@@ -226,5 +232,8 @@ public class ProjectServiceTest {
 
         //then
         assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(()->projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
+                .withMessageContaining("Description's size must be between 0 and 255");
     }
 }
