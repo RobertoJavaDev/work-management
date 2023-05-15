@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
-@AllArgsConstructor
 @RequestMapping("/projects")
+@AllArgsConstructor
 public class ProjectViewController {
 
     private final ProjectService projectService;
@@ -52,15 +52,15 @@ public class ProjectViewController {
     }
 
     @GetMapping("/single/{id}")
-    public String singleProject(@Valid @PathVariable UUID id, Model model){
+    public String singleProject(@Valid @PathVariable UUID id, Model model) {
 
         model.addAttribute("project", projectService.getProjectById(id));
-        
+
         return "project/singleProject";
     }
 
     @ModelAttribute("projects")
-    List<Project> getProjects() {
+    List<ProjectDto> getProjects() {
         return projectService.getAllProjects();
     }
 }
