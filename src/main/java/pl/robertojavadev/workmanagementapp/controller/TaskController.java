@@ -1,12 +1,19 @@
 package pl.robertojavadev.workmanagementapp.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.robertojavadev.workmanagementapp.dto.TaskDto;
-import pl.robertojavadev.workmanagementapp.model.Task;
 import pl.robertojavadev.workmanagementapp.service.TaskService;
 
 import javax.validation.Valid;
@@ -14,24 +21,29 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequestMapping("api/v1/tasks")
+@RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
 
-    public TaskController(final TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    @Transactional
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
+    public ResponseEntity<List<TaskDto>> getAllTasks() {
 
-        return ResponseEntity.ok(taskService.getAllTasks());
+        List<TaskDto> tasksDtoList = taskService.getAllTasks();
+        HttpHeaders headers = new HttpHeaders();
+
+        if (tasksDtoList.isEmpty()) {
+            headers.add("message", "There are no available tasks to view");
+        } else {
+            headers.add("message", "The all tasks has been successfully retrieved");
+        }
+
+        return new ResponseEntity<>(tasksDtoList, headers, HttpStatus.OK);
     }
 
-    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<TaskDto> getTaskById(@NotNull @PathVariable UUID id) {
 
@@ -42,7 +54,6 @@ public class TaskController {
         return new ResponseEntity<>(taskDto, headers, HttpStatus.OK);
     }
 
-    @Transactional
     @PostMapping
     public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskRequest) {
 
@@ -53,7 +64,6 @@ public class TaskController {
         return new ResponseEntity<>(taskDto, headers, HttpStatus.CREATED);
     }
 
-    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<TaskDto> updateTask(@Valid @PathVariable UUID id, @RequestBody TaskDto taskRequest) {
 
@@ -63,8 +73,7 @@ public class TaskController {
 
         return new ResponseEntity<>(taskDto, headers, HttpStatus.OK);
     }
-
-    @Transactional
+    
     @PatchMapping("/{id}")
     public ResponseEntity<TaskDto> toggleTask(@Valid @PathVariable UUID id){
 
