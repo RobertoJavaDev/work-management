@@ -3,9 +3,12 @@ package pl.robertojavadev.workmanagementapp.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -14,11 +17,10 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "projects")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
+@Table(name = "projects")
 public class Project {
 
     @Id

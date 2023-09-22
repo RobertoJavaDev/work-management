@@ -1,65 +1,78 @@
 package pl.robertojavadev.workmanagementapp.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
 import pl.robertojavadev.workmanagementapp.exception.ResourceNotDeletedException;
-import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequestMapping("api/v1/projects")
-@Validated
+@RequiredArgsConstructor
 public class ProjectApiController {
 
     private final ProjectService projectService;
 
-    ProjectApiController(final ProjectService projectService) {
-        this.projectService = projectService;
-    }
-
-    @Transactional
     @GetMapping
-    public ResponseEntity<List<Project>> getAllProjects() {
+    public ResponseEntity<List<ProjectDto>> getAllProjects() {
 
-        List<Project> projects = projectService.getAllProjects();
+        List<ProjectDto> projectsDtoList = projectService.getAllProjects();
         HttpHeaders headers = new HttpHeaders();
 
-        if (projects.isEmpty()) {
+        if (projectsDtoList.isEmpty()) {
             headers.add("message", "There are no available projects to view");
         } else {
             headers.add("message", "The projects has been successfully retrieved");
         }
 
-        return new ResponseEntity<>(projects, headers, HttpStatus.OK);
+        return new ResponseEntity<>(projectsDtoList, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProjectDto> getProjectById(@NotNull @PathVariable UUID id) {
+
+        ProjectDto projectDto = projectService.getProjectById(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", "The project has been successfully retrieved");
+
+        return new ResponseEntity<>(projectDto, headers, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectRequest) {
 
-        ProjectDto project = projectService.createProject(projectRequest);
+        ProjectDto projectDto = projectService.createProject(projectRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("message", "The project has been successfully created");
 
-        return new ResponseEntity<>(project, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(projectDto, headers, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ProjectDto> updateProject(@PathVariable UUID id,@Valid @RequestBody ProjectDto projectRequest) {
+    public ResponseEntity<ProjectDto> updateProject(@NotNull @PathVariable UUID id, @Valid @RequestBody ProjectDto projectRequest) {
 
-        ProjectDto project = projectService.updateProject(id, projectRequest);
+        ProjectDto projectDto = projectService.updateProject(id, projectRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("message", "The project has been successfully updated");
 
-        return new ResponseEntity<>(project, headers, HttpStatus.OK);
+        return new ResponseEntity<>(projectDto, headers, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

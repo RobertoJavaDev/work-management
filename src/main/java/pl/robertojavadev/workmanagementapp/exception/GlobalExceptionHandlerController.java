@@ -24,9 +24,8 @@ public class GlobalExceptionHandlerController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        e.getBindingResult().getFieldErrors().forEach(m -> {
-            log.error(String.format("%s %s", m.getField(), m.getDefaultMessage()));
-        });
+        e.getBindingResult().getFieldErrors().forEach(m ->
+                log.error(String.format("%s %s", m.getField(), m.getDefaultMessage())));
         return e.getMessage();
     }
 

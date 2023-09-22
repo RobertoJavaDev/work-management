@@ -1,32 +1,37 @@
 package pl.robertojavadev.workmanagementapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.Constants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import pl.robertojavadev.workmanagementapp.dto.ProjectDto;
-import pl.robertojavadev.workmanagementapp.exception.ResourceConstraintViolationException;
+import pl.robertojavadev.workmanagementapp.dto.TaskDto;
+import pl.robertojavadev.workmanagementapp.exception.ResourceNotDeletedException;
 import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
-import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.service.ProjectService;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -52,181 +57,229 @@ public class ProjectApiControllerTest {
 
     @Test
     void shouldReturnStatusOkWhenListOfAllProjectsIsEmpty() throws Exception {
-        //given
+        // given
 
-        //when
+        // when
         MockHttpServletResponse result = mockMvc.perform(get("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn()
                 .getResponse();
 
-        //then
+        // then
         assertThat(result.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(result.getHeader("message")).contains("no available projects");
     }
 
     @Test
     void shouldReturnStatusOkAndReturnListOfProjectsCorrectly() throws Exception {
-        //given
-        List<Project> projects = new ArrayList<>(List.of(
-                new Project("Project Java", "Learn programming", Instant.now()),
-                new Project("Project sport", "", Instant.now()),
-                new Project("Project english", "Learn english vocabulary", Instant.now())
+        // given
+        List<ProjectDto> projects = new ArrayList<>(List.of(
+                new ProjectDto("Project Java", "Learn programming"),
+                new ProjectDto("Project sport", ""),
+                new ProjectDto("Project english", "Learn english vocabulary")
         ));
         given(projectService.getAllProjects()).willReturn(projects);
 
-        //when
+        // when
         MockHttpServletResponse result = mockMvc.perform(get("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn()
                 .getResponse();
 
-        //then
+        // then
         assertThat(result.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(result.getHeader("message")).contains("successfully");
     }
 
     @Test
+    void shouldReturnStatusOkWhenGetProjectByIdIsCorrectly() throws Exception {
+        // given
+        ProjectDto projectDto = new ProjectDto("Test project", "Description");
+        UUID id = projectDto.getId();
+        given(projectService.getProjectById(id)).willReturn(projectDto);
+
+        // when
+        ResultActions result = mockMvc.perform(get("/api/v1/tasks/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(projectDto))));
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnStatusNotFoundWhenGetProjectByIdDoesNotExist() throws Exception {
+        // given
+        ProjectDto projectDto = new ProjectDto("Test project", "Description");
+        UUID id = UUID.randomUUID();
+        given(projectService.getProjectById(id)).willReturn(projectDto);
+
+        // when
+        ResultActions result = mockMvc.perform(get("/api/v1/tasks/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(projectDto))));
+
+        // then
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldReturnStatusCreatedWhenProjectCreatedCorrectly() throws Exception {
-        //given
+        // given
         ProjectDto project = new ProjectDto("New Project", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(post("/api/v1/projects/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(project))));
 
-        //then
+        // then
         result.andExpect(status().isCreated());
     }
 
     @Test
     void shouldReturnThrownAnExceptionWhenProjectNameIsEmpty() throws Exception {
-        //given
+        // given
         ProjectDto project = new ProjectDto("", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(post("/api/v1/projects/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(project))));
 
-        //then
+        // then
         result.andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldReturnThrownAnExceptionWhenProjectNameHasOnlyWhiteSpaces() throws Exception {
-        //given
+        // given
         ProjectDto project = new ProjectDto("     ", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(post("/api/v1/projects/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(project))));
 
-        //then
+        // then
         result.andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldReturnThrownAnExceptionWhenProjectNameHasIllegalSize() throws Exception {
-        //given
+        // given
         ProjectDto project = new ProjectDto("NewProjectNameWithName's62signsNewProjectNameWithName's62signs", "New project should be make");
         given(projectService.createProject(project)).willReturn(project);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(post("/api/v1/projects/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(project))));
 
-        //then
+        // then
         result.andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldReturnStatusOkWhenProjectDeletedCorrectly() throws Exception {
-        //given
+        // given
         ProjectDto projectDto = new ProjectDto("Test project", "Description");
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(delete("/api/v1/projects/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(projectDto))));
 
-        //then
+        // then
         result.andExpect(status().isOk());
     }
 
     @Test
+    void shouldReturnStatusNotFoundWhenDeletedProjectByIdDoesNotExist() throws Exception, ResourceNotDeletedException {
+        // given
+        ProjectDto projectDto = new ProjectDto("Test project", "Description");
+        UUID id = UUID.randomUUID();
+        doThrow(ResourceNotFoundException.class).when(projectService).deleteProject(id);
+
+        // when
+        ResultActions result = mockMvc.perform(delete("/api/v1/tasks/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(projectDto))));
+
+        // then
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldReturnStatusOkWhenProjectUpdatedCorrectly() throws Exception {
-        //given
+        // given
         ProjectDto oldProject = new ProjectDto("Old name", "Old description");
         ProjectDto changeProject = new ProjectDto("New name", "New description");
         UUID id = UUID.randomUUID();
         given(projectService.updateProject(id, oldProject)).willReturn(changeProject);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(changeProject))));
 
-        //then
+        // then
         result.andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnStatusNotFoundWhenProjectDoesNotExist() throws Exception {
-        //given
+        // given
         ProjectDto updateProject = new ProjectDto("Old name", "Old description");
         UUID id = UUID.randomUUID();
         when(projectService.updateProject(id, updateProject)).thenThrow(ResourceNotFoundException.class);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateProject))));
 
-        //then
+        // then
         result.andExpect(status().isNotFound());
     }
 
     @Test
     void shouldReturnStatusBadRequestWhenUpdatedProjectHasEmptyName() throws Exception {
-        //given
+        // given
         ProjectDto oldProject = new ProjectDto("Old name", "Old description");
         ProjectDto updateProject = new ProjectDto("", "Old description");
         UUID id = UUID.randomUUID();
         given(projectService.updateProject(id, oldProject)).willReturn(updateProject);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateProject))));
 
-        //then
+        // then
         result.andExpect(status().isBadRequest());
     }
 
     @Test
-    void shouldReturnStatusBadRequestWhenUpdatedProjectDescriptionIsTooLong() throws Exception{
-        //given
+    void shouldReturnStatusBadRequestWhenUpdatedProjectDescriptionIsTooLong() throws Exception {
+        // given
         ProjectDto oldProject = new ProjectDto("Name", "Old description");
         ProjectDto updateProject = new ProjectDto("Name", DESCRIPTION_IS_TOO_LONG);
         UUID id = UUID.randomUUID();
         given(projectService.updateProject(id, oldProject))
                 .willReturn(updateProject);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(patch("/api/v1/projects/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateProject))));
 
-        //then
+        // then
         result.andExpect(status().isBadRequest());
     }
 }
