@@ -17,10 +17,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
@@ -45,48 +47,47 @@ public class TaskServiceTest {
     @MockBean
     private TaskMapper taskMapper;
 
-
     @Test
     void shouldReturnAllTasks() {
-        //given
+        // given
         List<Task> taskList = List.of(
                 new Task(ID_OF_TASK_1, description1, null),
                 new Task(ID_OF_TASK_2, description2, null),
                 new Task(ID_OF_TASK_3, description3, null)
         );
 
-        //when
+        // when
         when(taskRepository.findAll()).thenReturn(taskList);
-        List<Task> allTasks = taskService.getAllTasks();
+        List<TaskDto> allTasks = taskService.getAllTasks();
 
-        //then
+        // then
         assertThat(allTasks, hasSize(taskList.size()));
     }
 
     @Test
     void shouldReturnTaskByIdCorrectly() {
-        //given
+        // given
         Task task = new Task(ID_OF_TASK_3, description3, null);
         TaskDto expectedTask = new TaskDto(ID_OF_TASK_3, description3, null);
 
-        //when
+        // when
         when(taskRepository.findById(ID_OF_TASK_3)).thenReturn(Optional.of(task));
         when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(expectedTask);
         TaskDto actualTask = taskService.getTaskById(ID_OF_TASK_3);
 
-        //then
+        // then
         assertEquals(expectedTask, actualTask);
     }
 
     @Test
     void shouldThrowAnExceptionWhenTaskDoesNotExist() {
-        //given
+        // given
         Task task = new Task(ID_OF_TASK_3, description3, null);
 
-        //when
+        // when
         given(taskRepository.findById(any())).willReturn(Optional.empty());
 
-        //then
+        // then
         assertThatThrownBy(() -> taskService.getTaskById(ID_OF_TASK_1))
                 .isInstanceOf(ResourceNotFoundException.class);
         assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -96,75 +97,75 @@ public class TaskServiceTest {
 
     @Test
     void shouldCreatedTaskCorrectly() {
-        //given
+        // given
         Task task = new Task(ID_OF_TASK_1, description1, null);
         TaskDto createdTask = new TaskDto(ID_OF_TASK_1, description1, null);
         TaskDto taskDto = new TaskDto(ID_OF_TASK_1, description1, null);
 
-        //when
+        // when
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
         TaskDto returnTask = taskService.createTask(createdTask);
 
-        //then
+        // then
         assertEquals(task.getId(), returnTask.getId());
         assertEquals(task.getDescription(), returnTask.getDescription());
     }
 
     @Test
     void shouldThrowAnExceptionWhenDescriptionIsEmpty() {
-        //given
+        // given
         Task task = new Task(ID_OF_TASK_1, "", null);
         TaskDto createdTask = new TaskDto(ID_OF_TASK_1, "", null);
         TaskDto taskDto = new TaskDto(ID_OF_TASK_1, "", null);
 
-        //when
+        // when
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
 
-        //then
+        // then
         assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
     }
 
     @Test
     void shouldThrowAnExceptionWhenDescriptionHasWhiteSpaces() {
-        //given
+        // given
         Task task = new Task(ID_OF_TASK_1, "    ", null);
         TaskDto createdTask = new TaskDto(ID_OF_TASK_1, "    ", null);
         TaskDto taskDto = new TaskDto(ID_OF_TASK_1, "    ", null);
 
-        //when
+        // when
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.mapTaskEntityToTaskDto(task)).thenReturn(taskDto);
 
-        //then
+        // then
         assertThrows(ConstraintViolationException.class, () -> taskService.createTask(createdTask));
     }
 
     @Test
     void shouldReturnUpdatedTaskCorrectly() {
-        //given
+        // given
         Task task = new Task(ID_OF_TASK_1, description1, null);
         TaskDto updatedTask = new TaskDto(ID_OF_TASK_1, "New description", null);
 
-        //when
+        // when
         when(taskRepository.findById(ID_OF_TASK_1)).thenReturn(Optional.of(task));
         when(taskMapper.mapTaskEntityToTaskDto(Mockito.any(Task.class))).thenReturn(updatedTask);
         TaskDto taskDto = taskService.updateTask(ID_OF_TASK_1, updatedTask);
 
-        //then
+        // then
         assertEquals(task.getDescription(), updatedTask.getDescription());
     }
 
     @Test
     void shouldThrowAnExceptionWhenUpdatedTaskDoesNotExist() {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, description1, null);
 
-        //when
+        // when
         given(taskRepository.findById(any())).willReturn(Optional.empty());
 
-        //then
+        // then
         assertThatThrownBy(() -> taskService.updateTask(ID_OF_TASK_1, task))
                 .isInstanceOf(ResourceNotFoundException.class);
         assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -174,13 +175,13 @@ public class TaskServiceTest {
 
     @Test
     void shouldThrowAnExceptionWhenToggleTaskDoesNotExist() {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, description1, null);
 
-        //when
+        // when
         given(taskRepository.findById(any())).willReturn(Optional.empty());
 
-        //then
+        // then
         assertThatThrownBy(() -> taskService.toggleTask(ID_OF_TASK_1))
                 .isInstanceOf(ResourceNotFoundException.class);
         assertThatExceptionOfType(ResourceNotFoundException.class)

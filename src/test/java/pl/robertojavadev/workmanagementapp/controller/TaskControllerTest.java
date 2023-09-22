@@ -20,7 +20,10 @@ import static org.mockito.ArgumentMatchers.any;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -40,142 +43,142 @@ class TaskControllerTest {
 
     @Test
     void shouldReturnStatusOkWhenGetTaskByIdIsCorrectly() throws Exception {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
         when(taskService.getTaskById(task.getId())).thenReturn(task);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(get("/api/v1/tasks/{id}", ID_OF_TASK_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
 
-        //then
+        // then
         result.andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnStatusNotFoundWhenTaskDoesNotExist() throws Exception {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
         when(taskService.getTaskById(any())).thenThrow(ResourceNotFoundException.class);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(get("/api/v1/tasks/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
 
-        //then
+        // then
         result.andExpect(status().isNotFound());
     }
 
     @Test
     void shouldReturnStatusCreatedWhenTaskCreatedCorrectly() throws Exception {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
         when(taskService.createTask(task)).thenReturn(task);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
 
-        //then
+        // then
         result.andExpect(status().isCreated());
     }
 
     @Test
     void shouldThrowAnExceptionWhenTaskDescriptionIsEmpty() throws Exception {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "", null);
         given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1, "", null));
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
 
-        //then
+        // then
         result.andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldThrowAnExceptionWhenTaskDescriptionHasWhiteSpaces() throws Exception {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "    ", null);
         given(taskService.createTask(task)).willReturn(new TaskDto(ID_OF_TASK_1, "    ", null));
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(post("/api/v1/tasks/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(task))));
 
-        //then
+        // then
         result.andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldReturnStatusOkWhenTaskUpdatedCorrectly() throws Exception {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
         TaskDto updateTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
 
         when(taskService.updateTask(ID_OF_TASK_1, task)).thenReturn(updateTask);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(put("/api/v1/tasks/" + ID_OF_TASK_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateTask))));
 
-        //then
+        // then
         result.andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnStatusNotFoundWhenTaskUpdatedDoesNotExist() throws Exception {
-        //given
+        // given
         TaskDto updateTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
 
         when(taskService.updateTask(any(), any())).thenThrow(ResourceNotFoundException.class);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(put("/api/v1/tasks/" + ID_OF_TASK_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(updateTask))));
 
-        //then
+        // then
         result.andExpect(status().isNotFound());
     }
 
     @Test
     void shouldReturnStatusOkWhenToggleTaskCorrectly() throws Exception {
-        //given
+        // given
         TaskDto task = new TaskDto(ID_OF_TASK_1, "Learn Spring Boot", null);
         TaskDto toggleTask = new TaskDto(ID_OF_TASK_1, "Learn Java Boot", true, null);
 
         when(taskService.toggleTask(task.getId())).thenReturn(toggleTask);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(patch("/api/v1/tasks/" + ID_OF_TASK_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(toggleTask))));
 
-        //then
+        // then
         result.andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnStatusNotFoundWhenToggleTaskDoesNotExist() throws Exception {
-        //given
+        // given
         TaskDto toggleTask = new TaskDto(ID_OF_TASK_1, "Learn Java", null);
 
         when(taskService.toggleTask(any())).thenThrow(ResourceNotFoundException.class);
 
-        //when
+        // when
         ResultActions result = mockMvc.perform(patch("/api/v1/tasks/" + ID_OF_TASK_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Objects.requireNonNull(objectMapper.writeValueAsString(toggleTask))));
 
-        //then
+        // then
         result.andExpect(status().isNotFound());
     }
 }

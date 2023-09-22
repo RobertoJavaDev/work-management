@@ -64,92 +64,92 @@ public class ProjectServiceTest {
 
     @Test
     void shouldReturnAllProjects() {
-        //given
+        // given
         List<Project> projects = new ArrayList<>(List.of(
                 new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now()),
                 new Project(PROJECT_NAME_2, EMPTY_DESCRIPTION, Instant.now()),
                 new Project(PROJECT_NAME_3, DESCRIPTION_2, Instant.now())
         ));
 
-        //when
+        // when
         when(projectRepository.findAll()).thenReturn(projects);
-        List<Project> allProjects = projectService.getAllProjects();
+        List<ProjectDto> allProjects = projectService.getAllProjects();
 
-        //then
+        // then
         assertThat(allProjects, hasSize(projects.size()));
     }
 
     @Test
     void shouldCreatedProjectCorrectly() {
-        //given
+        // given
         Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
         ProjectDto createdProject = new ProjectDto(PROJECT_NAME_1, DESCRIPTION_1);
         ProjectDto projectDto = new ProjectDto(PROJECT_NAME_1, DESCRIPTION_1);
 
-        //when
+        // when
         when(projectRepository.save(any(Project.class))).thenReturn(project);
         when(projectMapper.mapProjectEntityToProjectDto(project)).thenReturn(projectDto);
         ProjectDto returnProject = projectService.createProject(createdProject);
 
-        //then
+        // then
         assertEquals(project.getName(), returnProject.getName());
         assertEquals(project.getDescription(), returnProject.getDescription());
     }
 
     @Test
     void shouldThrowAnExceptionWhenNameIsEmpty() {
-        //given
+        // given
         Project project = new Project(EMPTY_PROJECT_NAME, DESCRIPTION_1, Instant.now());
         ProjectDto createdProject = new ProjectDto(EMPTY_PROJECT_NAME, DESCRIPTION_1);
         ProjectDto projectDto = new ProjectDto(EMPTY_PROJECT_NAME, DESCRIPTION_1);
 
-        //when
+        // when
         when(projectRepository.save(any(Project.class))).thenReturn(project);
         when(projectMapper.mapProjectEntityToProjectDto(project)).thenReturn(projectDto);
 
-        //then
+        // then
         assertThrows(ConstraintViolationException.class, () -> projectService.createProject(createdProject));
     }
 
     @Test
     void shouldThrowAnExceptionWhenNameHasWhiteSpaces() {
-        //given
+        // given
         Project project = new Project(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_1, Instant.now());
         ProjectDto createdProject = new ProjectDto(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_1);
         ProjectDto projectDto = new ProjectDto(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_1);
 
-        //when
+        // when
         when(projectRepository.save(any(Project.class))).thenReturn(project);
         when(projectMapper.mapProjectEntityToProjectDto(project)).thenReturn(projectDto);
 
-        //then
+        // then
         assertThrows(ConstraintViolationException.class, () -> projectService.createProject(createdProject));
     }
 
     @Test
     void shouldDeletedProjectCorrectly() throws ResourceNotDeletedException {
-        //given
+        // given
         Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
         project.setId(ID_1);
 
-        //when
+        // when
         when(projectRepository.existsById(ID_1)).thenReturn(true);
         projectService.deleteProject(ID_1);
 
-        //then
+        // then
         verify(projectRepository).deleteById(project.getId());
     }
 
     @Test
     void shouldThrowExceptionWhenProjectWithIdDoesNotExist() {
-        //given
+        // given
         Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
         project.setId(ID_1);
 
-        //when
+        // when
         given(projectRepository.findById(Mockito.any())).willReturn(Optional.empty());
 
-        //then
+        // then
         assertThatThrownBy(() -> projectService.deleteProject(UUID.randomUUID()))
                 .isInstanceOf(ResourceNotDeletedException.class);
         assertThatExceptionOfType(ResourceNotDeletedException.class)
@@ -159,35 +159,35 @@ public class ProjectServiceTest {
 
     @Test
     void shouldUpdatedProjectCorrectly() {
-        //given
+        // given
         ProjectDto updatedProjectDto = new ProjectDto(PROJECT_NAME_2, DESCRIPTION_2);
         Project project = new Project(PROJECT_NAME_1, DESCRIPTION_1, Instant.now());
         project.setId(ID_1);
         ProjectDto newProjectDto = new ProjectDto(PROJECT_NAME_2, DESCRIPTION_2);
         newProjectDto.setId(ID_1);
 
-        //when
+        // when
         when(projectRepository.findById(ID_1))
                 .thenReturn(Optional.of(project));
         when(projectMapper.mapProjectEntityToProjectDto(project))
                 .thenReturn(newProjectDto);
         ProjectDto projectDto = projectService.updateProject(ID_1, updatedProjectDto);
 
-        //then
+        // then
         Assertions.assertThat(projectDto.getName()).isEqualTo(updatedProjectDto.getName());
         Assertions.assertThat(projectDto.getDescription()).isEqualTo(updatedProjectDto.getDescription());
     }
 
     @Test
     void shouldThrowAnExceptionWhenUpdatedProjectWithIdDoesNotExist() {
-        //given
+        // given
         ProjectDto updatedProjectDto = new ProjectDto(PROJECT_NAME_2, DESCRIPTION_2);
         updatedProjectDto.setId(ID_1);
 
-        //when
+        // when
         given(projectRepository.findById(Mockito.any())).willReturn(Optional.empty());
 
-        //then
+        // then
         assertThatThrownBy(() -> projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
                 .isInstanceOf(ResourceNotFoundException.class);
         assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -197,12 +197,12 @@ public class ProjectServiceTest {
 
     @Test
     void shouldThrowAnExceptionWhenUpdatedNameIsEmpty() {
-        //given
+        // given
         ProjectDto updatedProjectDto = new ProjectDto(EMPTY_PROJECT_NAME, DESCRIPTION_2);
 
-        //when
+        // when
 
-        //then
+        // then
         assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(()->projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
@@ -211,12 +211,12 @@ public class ProjectServiceTest {
 
     @Test
     void shouldThrowAnExceptionWhenUpdatedNameHasWhiteSpaces() {
-        //given
+        // given
         ProjectDto updatedProjectDto = new ProjectDto(WHITE_SPACES_PROJECT_NAME, DESCRIPTION_2);
 
-        //when
+        // when
 
-        //then
+        // then
         assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(()->projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
@@ -225,12 +225,12 @@ public class ProjectServiceTest {
 
     @Test
     void shouldThrowAnExceptionWhenUpdatedProjectDescriptionIsTooLong() {
-        //given
+        // given
         ProjectDto updatedProjectDto = new ProjectDto(PROJECT_NAME_1, DESCRIPTION_IS_TOO_LONG);
 
-        //when
+        // when
 
-        //then
+        // then
         assertThrows(ConstraintViolationException.class, () -> projectService.updateProject(ID_1, updatedProjectDto));
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(()->projectService.updateProject(UUID.randomUUID(), updatedProjectDto))
