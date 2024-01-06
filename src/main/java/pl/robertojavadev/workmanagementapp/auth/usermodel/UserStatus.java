@@ -1,2 +1,8 @@
-package pl.robertojavadev.workmanagementapp.auth.usermodel;public enum UserStatus {
+package pl.robertojavadev.workmanagementapp.auth.usermodel;
+
+public enum UserStatus {
+    VERIFIED,
+    UNVERIFIED,
+    BLOCKED,
+    BANNED;
 }

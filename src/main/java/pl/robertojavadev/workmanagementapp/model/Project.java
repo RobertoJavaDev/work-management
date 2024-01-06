@@ -1,8 +1,11 @@
 package pl.robertojavadev.workmanagementapp.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +14,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import pl.robertojavadev.workmanagementapp.auth.usermodel.User;
 
 import java.time.Instant;
 import java.util.Set;
@@ -40,6 +44,10 @@ public class Project {
 
     @OneToMany(mappedBy = "project")
     private Set<Section> sections;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Project(String name, String description, Instant creationDate) {
         this.name = name;
