@@ -65,13 +65,13 @@
             <div class="mb-3 row">
                 <label class="col-sm-2 col-form-label">Project name</label>
                 <div class="col-sm-8">
-                    <b type="text" readonly class="form-control" th:text="${project.get().name}"></b>
+                    <b type="text" readonly class="form-control" th:text="${project.getName()}"></b>
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="staticDescription" class="col-sm-2 col-form-label">Project description</label>
                 <div class="col-sm-8">
-                    <b type="text" readonly class="form-control" id="staticDescription" th:text="${project.get().description}"></b>
+                    <b type="text" readonly class="form-control" id="staticDescription" th:text="${project.getDescription()}"></b>
                 </div>
             </div>
         </div>
