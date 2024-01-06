@@ -1,5 +1,7 @@
 package pl.robertojavadev.workmanagementapp.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.robertojavadev.workmanagementapp.dto.TaskDto;
 import pl.robertojavadev.workmanagementapp.service.TaskService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
