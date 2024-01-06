@@ -1,5 +1,6 @@
 package pl.robertojavadev.workmanagementapp.service;
 
+import jakarta.validation.ConstraintViolationException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,7 +15,6 @@ import pl.robertojavadev.workmanagementapp.exception.ResourceNotFoundException;
 import pl.robertojavadev.workmanagementapp.model.Project;
 import pl.robertojavadev.workmanagementapp.repository.ProjectRepository;
 
-import javax.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
