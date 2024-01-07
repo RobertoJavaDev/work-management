@@ -21,6 +21,7 @@
 		<lombok.version>1.18.26</lombok.version>
 		<liquibase.version>4.20.0</liquibase.version>
 		<mapstruct.version>1.5.3.Final</mapstruct.version>
+		<swager.version>2.1.0</swager.version>
 	</properties>
 
 	<dependencies>
@@ -89,8 +90,14 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.1.0</version>
+			<version>${swager.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
